@@ -395,6 +395,25 @@
   }
 </style>
 
+
+<style id="clickable-patch">
+/* Force interactive elements to be clickable */
+a, button, [role="button"] {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto !important;
+}
+/* If there are decorative overlays, neutralize pointer events */
+.decor, .overlay, .backdrop, .glow, .shine, .stars, .particles, .bg-effects, .blur, [class*="overlay"], [class*="backdrop"], [class*="glow"], [class*="shine"], [class*="stars"], [class*="particles"] {
+  pointer-events: none !important;
+}
+</style>
+
+
+<style id="hide-change-photo">
+label[for="pickAvatar"], #pickAvatar { display:none !important; }
+</style>
+
 </head>
 <body>
   <!-- Ambient layers -->
@@ -426,6 +445,10 @@
         <h1 class="title glow reveal-split" data-stagger=".024">TRAN TAN PHAT</h1>
         <p class="subtitle">Freelancer | Frontend • Landing page • UI/UX • Hiệu ứng web. Đam mê tạo trải nghiệm đẹp, mượt, dễ dùng.</p>
         <div class="actions">
+  <a id="btn-khoa-hoc" class="btn primary sheen led-fixed" role="button" tabindex="0"
+   data-href="index10.mobile.v2.html" aria-label="Cần mật khẩu để truy cập"
+   title="Cần mật khẩu để truy cập">📚 Khóa Học</a>
+
           <a class="btn primary sheen" href="#lien-he">Liên hệ ngay</a>
           <a class="btn sheen" href="#dich-vu">Xem dịch vụ</a>
           <button class="btn sheen" id="downloadVcf">Tải vCard (.vcf)</button>
@@ -599,6 +622,7 @@
     })
   }
   bindPicker('pickLogo','brandLogo','ttphat_logo');
+  bindPicker('pickAvatar','avatarImg','ttphat_avatar');
   </script>
 
 <script>
@@ -1483,6 +1507,188 @@
 })();
 </script>
 
+<script>
+(function(){
+  function navWithPass(){
+    var pass = window.prompt("Nhập mật khẩu để vào Khóa Học:");
+    if(pass === "2407"){
+      var url = btn.getAttribute("data-href");
+      if(url){ window.location.href = url; }
+    } else if(pass !== null) {
+      alert("Mật khẩu không đúng!");
+    }
+  }
+  function onKey(e){
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      navWithPass();
+    }
+  }
+  var btn = document.getElementById("btn-khoa-hoc");
+  if(btn){
+    // đảm bảo không có href để không thể mở tab mới
+    btn.removeAttribute("href");
+    btn.style.cursor = "pointer";
+    btn.addEventListener("click", function(e){ e.preventDefault(); navWithPass(); });
+    btn.addEventListener("keydown", onKey);
+  }
+})();
+</script>
+
+<script>
+(function(){
+  function textOf(el){
+    return (el && (el.innerText || el.textContent) || "").trim();
+  }
+  function findCardByLabel(label){
+    // Find a container whose text includes the label (Email / Điện thoại / Facebook / Zalo)
+    const cards = Array.from(document.querySelectorAll(".card, .contact-item, .info-box, .item, .tile, .panel, [class*='contact'] > div, [class*='contact'] .item, .grid > div, .flex > div"));
+    const lower = label.toLowerCase();
+    for(const c of cards){
+      const t = textOf(c).toLowerCase();
+      if(t.includes(lower)){
+        return c;
+      }
+    }
+    return null;
+  }
+  function getValueAfterLabel(container, label){
+    if(!container) return "";
+    // Try strong/label elements
+    const nodes = Array.from(container.querySelectorAll("a, span, p, div"));
+    const lower = label.toLowerCase();
+    // Prefer obvious anchors (phone, mail, URLs)
+    for(const n of nodes){
+      const txt = textOf(n);
+      const ltxt = txt.toLowerCase();
+      if(label==="Email" && (ltxt.includes("@") || n.href && n.href.startsWith("mailto:"))) return txt;
+      if(label==="Điện thoại" && (/\d/.test(txt) || (n.href && n.href.startsWith("tel:")))) return txt;
+      if((label==="Facebook" || label==="Zalo") && (ltxt.includes("facebook.com") || ltxt.includes("zalo.me"))) return txt;
+    }
+    // fallback: remove the label itself
+    const t = textOf(container);
+    return t.replace(new RegExp(label, "i"), "").trim().split(/\s+/).slice(0, 3).join(" ");
+  }
+
+  function wire(){
+    // Email - Sao chép
+    const emailCard = findCardByLabel("Email");
+    if(emailCard){
+      const email = getValueAfterLabel(emailCard, "Email").match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+      const copyBtn = emailCard.querySelector("button, .btn, [role='button']");
+      if(email && copyBtn){
+        copyBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          navigator.clipboard.writeText(email[0]).then(function(){
+            copyBtn.dataset.oldText = copyBtn.innerText;
+            copyBtn.innerText = "Đã copy";
+            setTimeout(function(){ copyBtn.innerText = copyBtn.dataset.oldText || "Sao chép"; }, 1200);
+          }).catch(function(){
+            alert("Không thể sao chép vào clipboard. Hãy copy thủ công: " + email[0]);
+          });
+        });
+        copyBtn.style.cursor = "pointer";
+      }
+    }
+    // Điện thoại - Gọi
+    const phoneCard = findCardByLabel("Điện thoại");
+    if(phoneCard){
+      const phoneRaw = getValueAfterLabel(phoneCard, "Điện thoại");
+      const phone = (phoneRaw||"").replace(/[^\d+]/g, "");
+      const callBtn = phoneCard.querySelector("button, .btn, [role='button']");
+      if(phone && callBtn){
+        callBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          window.location.href = "tel:" + phone;
+        });
+        callBtn.style.cursor = "pointer";
+      }
+    }
+    // Facebook - Mở
+    const fbCard = findCardByLabel("Facebook");
+    if(fbCard){
+      // If there's a link text like facebook.com/dev.tanphat use it, else default
+      let url = "";
+      const a = fbCard.querySelector("a[href*='facebook.com']");
+      if(a) url = a.getAttribute("href");
+      if(!url){
+        const txt = textOf(fbCard);
+        const m = txt.match(/https?:\/\/(www\.)?facebook\.com\/[^\s]+|facebook\.com\/[^\s]+/i);
+        if(m) url = m[0].startsWith("http") ? m[0] : "https://" + m[0];
+      }
+      if(!url) url = "https://facebook.com/dev.tanphat";
+      const openBtn = fbCard.querySelector("button, .btn, [role='button']");
+      if(openBtn){
+        openBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          window.open(url, "_blank");
+        });
+        openBtn.style.cursor = "pointer";
+      }
+    }
+    // Zalo - Mở
+    const zaloCard = findCardByLabel("Zalo");
+    if(zaloCard){
+      let url = "";
+      const a = zaloCard.querySelector("a[href*='zalo.me']");
+      if(a) url = a.getAttribute("href");
+      if(!url){
+        const txt = textOf(zaloCard);
+        const m = txt.match(/https?:\/\/(www\.)?zalo\.me\/[^\s]+|zalo\.me\/[^\s]+/i);
+        if(m) url = m[0].startsWith("http") ? m[0] : "https://" + m[0];
+      }
+      if(!url){
+        // Try to detect a phone number in the card
+        const t = textOf(zaloCard);
+        const n = (t.match(/(\+?\d[\d\s]{7,})/)||[])[0];
+        if(n){
+          const digits = n.replace(/[^\d]/g, "");
+          url = "https://zalo.me/" + digits;
+        }
+      }
+      if(!url) url = "https://zalo.me/0946743849";
+      const openBtn = zaloCard.querySelector("button, .btn, [role='button']");
+      if(openBtn){
+        openBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          window.open(url, "_blank");
+        });
+        openBtn.style.cursor = "pointer";
+      }
+    }
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", wire);
+  } else {
+    wire();
+  }
+})();
+</script>
+
+
+<script id="clickable-guard">
+(function(){
+  function enableClicks(root){
+    var interactive = root.querySelectorAll('a, button, [role="button"]');
+    interactive.forEach(function(el){
+      el.style.pointerEvents = 'auto';
+      el.style.zIndex = (parseInt(getComputedStyle(el).zIndex)||10) < 10 ? 10 : getComputedStyle(el).zIndex;
+      // Remove 'disabled' attribute if mistakenly set on buttons meant to be clickable
+      if(el.hasAttribute('disabled')) el.removeAttribute('disabled');
+    });
+    // Disable pointer events on positioned siblings that might overlay
+    var overlays = root.querySelectorAll('.overlay, .decor, .backdrop, .glow, .shine, .stars, .particles, [class*="overlay"], [class*="backdrop"], [class*="glow"], [class*="shine"], [class*="stars"], [class*="particles"]');
+    overlays.forEach(function(o){ o.style.pointerEvents = 'none'; });
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){ enableClicks(document); });
+  } else {
+    enableClicks(document);
+  }
+})();
+</script>
+
 </body> -->
 <script>
 (function(){
@@ -1566,6 +1772,188 @@
   const st = document.createElement('style');
   st.textContent = '.tp-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);padding:10px 14px;background:#111;color:#fff;border-radius:12px;opacity:.0;pointer-events:none;transition:opacity .2s, transform .2s;box-shadow:0 6px 24px rgba(0,0,0,.35);font-size:14px;z-index:9999}.tp-toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}';
   document.head.appendChild(st);
+})();
+</script>
+
+<script>
+(function(){
+  function navWithPass(){
+    var pass = window.prompt("Nhập mật khẩu để vào Khóa Học:");
+    if(pass === "2407"){
+      var url = btn.getAttribute("data-href");
+      if(url){ window.location.href = url; }
+    } else if(pass !== null) {
+      alert("Mật khẩu không đúng!");
+    }
+  }
+  function onKey(e){
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      navWithPass();
+    }
+  }
+  var btn = document.getElementById("btn-khoa-hoc");
+  if(btn){
+    // đảm bảo không có href để không thể mở tab mới
+    btn.removeAttribute("href");
+    btn.style.cursor = "pointer";
+    btn.addEventListener("click", function(e){ e.preventDefault(); navWithPass(); });
+    btn.addEventListener("keydown", onKey);
+  }
+})();
+</script>
+
+<script>
+(function(){
+  function textOf(el){
+    return (el && (el.innerText || el.textContent) || "").trim();
+  }
+  function findCardByLabel(label){
+    // Find a container whose text includes the label (Email / Điện thoại / Facebook / Zalo)
+    const cards = Array.from(document.querySelectorAll(".card, .contact-item, .info-box, .item, .tile, .panel, [class*='contact'] > div, [class*='contact'] .item, .grid > div, .flex > div"));
+    const lower = label.toLowerCase();
+    for(const c of cards){
+      const t = textOf(c).toLowerCase();
+      if(t.includes(lower)){
+        return c;
+      }
+    }
+    return null;
+  }
+  function getValueAfterLabel(container, label){
+    if(!container) return "";
+    // Try strong/label elements
+    const nodes = Array.from(container.querySelectorAll("a, span, p, div"));
+    const lower = label.toLowerCase();
+    // Prefer obvious anchors (phone, mail, URLs)
+    for(const n of nodes){
+      const txt = textOf(n);
+      const ltxt = txt.toLowerCase();
+      if(label==="Email" && (ltxt.includes("@") || n.href && n.href.startsWith("mailto:"))) return txt;
+      if(label==="Điện thoại" && (/\d/.test(txt) || (n.href && n.href.startsWith("tel:")))) return txt;
+      if((label==="Facebook" || label==="Zalo") && (ltxt.includes("facebook.com") || ltxt.includes("zalo.me"))) return txt;
+    }
+    // fallback: remove the label itself
+    const t = textOf(container);
+    return t.replace(new RegExp(label, "i"), "").trim().split(/\s+/).slice(0, 3).join(" ");
+  }
+
+  function wire(){
+    // Email - Sao chép
+    const emailCard = findCardByLabel("Email");
+    if(emailCard){
+      const email = getValueAfterLabel(emailCard, "Email").match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+      const copyBtn = emailCard.querySelector("button, .btn, [role='button']");
+      if(email && copyBtn){
+        copyBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          navigator.clipboard.writeText(email[0]).then(function(){
+            copyBtn.dataset.oldText = copyBtn.innerText;
+            copyBtn.innerText = "Đã copy";
+            setTimeout(function(){ copyBtn.innerText = copyBtn.dataset.oldText || "Sao chép"; }, 1200);
+          }).catch(function(){
+            alert("Không thể sao chép vào clipboard. Hãy copy thủ công: " + email[0]);
+          });
+        });
+        copyBtn.style.cursor = "pointer";
+      }
+    }
+    // Điện thoại - Gọi
+    const phoneCard = findCardByLabel("Điện thoại");
+    if(phoneCard){
+      const phoneRaw = getValueAfterLabel(phoneCard, "Điện thoại");
+      const phone = (phoneRaw||"").replace(/[^\d+]/g, "");
+      const callBtn = phoneCard.querySelector("button, .btn, [role='button']");
+      if(phone && callBtn){
+        callBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          window.location.href = "tel:" + phone;
+        });
+        callBtn.style.cursor = "pointer";
+      }
+    }
+    // Facebook - Mở
+    const fbCard = findCardByLabel("Facebook");
+    if(fbCard){
+      // If there's a link text like facebook.com/dev.tanphat use it, else default
+      let url = "";
+      const a = fbCard.querySelector("a[href*='facebook.com']");
+      if(a) url = a.getAttribute("href");
+      if(!url){
+        const txt = textOf(fbCard);
+        const m = txt.match(/https?:\/\/(www\.)?facebook\.com\/[^\s]+|facebook\.com\/[^\s]+/i);
+        if(m) url = m[0].startsWith("http") ? m[0] : "https://" + m[0];
+      }
+      if(!url) url = "https://facebook.com/dev.tanphat";
+      const openBtn = fbCard.querySelector("button, .btn, [role='button']");
+      if(openBtn){
+        openBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          window.open(url, "_blank");
+        });
+        openBtn.style.cursor = "pointer";
+      }
+    }
+    // Zalo - Mở
+    const zaloCard = findCardByLabel("Zalo");
+    if(zaloCard){
+      let url = "";
+      const a = zaloCard.querySelector("a[href*='zalo.me']");
+      if(a) url = a.getAttribute("href");
+      if(!url){
+        const txt = textOf(zaloCard);
+        const m = txt.match(/https?:\/\/(www\.)?zalo\.me\/[^\s]+|zalo\.me\/[^\s]+/i);
+        if(m) url = m[0].startsWith("http") ? m[0] : "https://" + m[0];
+      }
+      if(!url){
+        // Try to detect a phone number in the card
+        const t = textOf(zaloCard);
+        const n = (t.match(/(\+?\d[\d\s]{7,})/)||[])[0];
+        if(n){
+          const digits = n.replace(/[^\d]/g, "");
+          url = "https://zalo.me/" + digits;
+        }
+      }
+      if(!url) url = "https://zalo.me/0946743849";
+      const openBtn = zaloCard.querySelector("button, .btn, [role='button']");
+      if(openBtn){
+        openBtn.addEventListener("click", function(e){
+          e.preventDefault();
+          window.open(url, "_blank");
+        });
+        openBtn.style.cursor = "pointer";
+      }
+    }
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", wire);
+  } else {
+    wire();
+  }
+})();
+</script>
+
+
+<script id="clickable-guard">
+(function(){
+  function enableClicks(root){
+    var interactive = root.querySelectorAll('a, button, [role="button"]');
+    interactive.forEach(function(el){
+      el.style.pointerEvents = 'auto';
+      el.style.zIndex = (parseInt(getComputedStyle(el).zIndex)||10) < 10 ? 10 : getComputedStyle(el).zIndex;
+      // Remove 'disabled' attribute if mistakenly set on buttons meant to be clickable
+      if(el.hasAttribute('disabled')) el.removeAttribute('disabled');
+    });
+    // Disable pointer events on positioned siblings that might overlay
+    var overlays = root.querySelectorAll('.overlay, .decor, .backdrop, .glow, .shine, .stars, .particles, [class*="overlay"], [class*="backdrop"], [class*="glow"], [class*="shine"], [class*="stars"], [class*="particles"]');
+    overlays.forEach(function(o){ o.style.pointerEvents = 'none'; });
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", function(){ enableClicks(document); });
+  } else {
+    enableClicks(document);
+  }
 })();
 </script>
 
