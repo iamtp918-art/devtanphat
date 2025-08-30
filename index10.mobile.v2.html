@@ -165,6 +165,47 @@
   .btn, button, .track, .lesson{ min-height:44px !important; }
 }
 </style>
+
+<!-- ===== ACCESS GATE: no-password lock (sessionStorage/token/referrer) ===== -->
+<script>
+(function () {
+  var TOKEN = "phat-2407-4u5Qh9r5w6C2";   // change if you want a new link token
+  var PARAM = "t";                         // ?t=TOKEN
+  var REDIRECT_URL = "/index.html#auth_required"; // portal page
+
+  try {
+    var qs = new URLSearchParams(location.search);
+    var t = qs.get(PARAM);
+    if (t === TOKEN) {
+      sessionStorage.setItem("kh_ok", "1");
+      if (history.replaceState) {
+        history.replaceState({}, document.title, location.pathname + location.hash);
+      }
+    }
+  } catch (e) {}
+
+  function hasAccess() {
+    try { return sessionStorage.getItem("kh_ok") === "1"; } catch (e) { return false; }
+  }
+
+  if (!hasAccess()) {
+    // If user came from the portal on the same origin, auto-grant for this session
+    try {
+      var ref = document.referrer ? new URL(document.referrer) : null;
+      var sameHost = ref && (ref.origin === location.origin);
+      var allowed = sameHost && ["/index.html", "/index5.html", "/index5.mobile.html", "/index5.v2.html"].includes(ref.pathname);
+      if (allowed) {
+        sessionStorage.setItem("kh_ok", "1");
+      } else {
+        location.replace(REDIRECT_URL);
+      }
+    } catch (e) {
+      location.replace(REDIRECT_URL);
+    }
+  }
+})();
+</script>
+
 </head>
 <body>
 <header>
