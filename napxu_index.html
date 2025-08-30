@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Báo giá Xu – Bậc giá + Thanh toán VietQR (LED tinh tế)</title>
+<meta name="description" content="Nhập số lượng Xu để xem giá tức thì. Bậc giá: <50k=290k/1k, ≥50k=286k/1k, ≥100k=285k/1k. Thanh toán VietQR BIDV theo số tiền. LED neon tinh tế." />
+<meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<link rel="icon" href='data:image/svg+xml;utf8,
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="26" fill="%230b1220"/>
+  <text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,Segoe UI,Roboto" font-size="62" fill="%2334b3ff">Xu</text>
+</svg>'/>
+<style>
+  :root{
+    /* LED tinh tế */
+    --bg:#0b1220; --surface:#0f1524; --surface-2:#0c1220;
+    --text:#e8edf6; --muted:#98a6bd; --border:#1c2740;
+    --radius:18px; --glow:10px; --shadow-1:0 6px 24px rgba(0,0,0,.25);
+    --led-primary:#34b3ff; --led-secondary:#7ad7ff; --led-intensity:.35;
+  }
+  .theme-light{
+    --bg:#f8fafc; --surface:#ffffff; --surface-2:#f3f6fb;
+    --text:#0f1a2f; --muted:#57627a; --border:#e4eaf2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    -webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  .wrap{max-width:980px;margin:0 auto;padding:clamp(14px,2vw,22px)}
+  header{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;user-select:none;cursor:pointer}
+  .logo{width:40px;height:40px;border-radius:10px;background:
+    radial-gradient(80% 80% at 30% 30%,var(--led-secondary),var(--led-primary) 60%,transparent 70%),var(--surface-2);
+    box-shadow:0 0 calc(var(--glow)*.9) rgba(52,179,255,var(--led-intensity))}
+  .title{font-weight:800;font-size:clamp(20px,2.3vw,28px);letter-spacing:.2px}
+  .neon{text-shadow:
+    0 0 calc(var(--glow)*.45) color-mix(in oklab,var(--led-primary) 50%, transparent),
+    0 0 calc(var(--glow)*.9)  color-mix(in oklab,var(--led-secondary) 30%, transparent)}
+  .banner{grid-column:1/-1;margin-top:8px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;
+    background:linear-gradient(180deg,color-mix(in oklab,var(--surface) 88%, transparent),var(--surface));box-shadow:var(--shadow-1);
+    display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .stamp{color:var(--muted);font-variant-numeric:tabular-nums}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .chip,.btn,select,.switch{appearance:none;border:1px solid var(--border);background:var(--surface);color:var(--text);
+    border-radius:999px;padding:8px 12px;font-weight:700;line-height:1;cursor:pointer}
+  .btn{transition:transform .06s, box-shadow .15s ease}
+  .btn:hover{box-shadow:0 0 0 1px var(--border), 0 6px 18px rgba(0,0,0,.25)}
+  main{margin-top:16px}
+  .card{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow-1);padding:16px;position:relative}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:880px){.grid{grid-template-columns:1.2fr .8fr}}
+  .row{display:grid;gap:12px}
+  .input{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .input input[type="number"]{width:260px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2);color:var(--text);
+    padding:10px 12px;font-weight:700}
+  .input input[type="range"]{width:100%}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .big{font-size:clamp(22px,2.4vw,28px);font-weight:900}
+  .muted{color:var(--muted);font-weight:600}
+  .vnd{font-variant-numeric:tabular-nums}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .toast{font-size:12px;padding:4px 8px;border:1px solid var(--border);background:var(--surface-2);border-radius:8px;opacity:0;transition:opacity .2s}
+  .toast.show{opacity:1}
+  /* Neon border tinh tế */
+  .halo{box-shadow:
+    0 0 calc(var(--glow)*.55) color-mix(in oklab, var(--led-primary) 35%, transparent) inset,
+    0 0 calc(var(--glow)*.35) color-mix(in oklab, var(--led-secondary) 25%, transparent)}
+  .nb::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:
+    linear-gradient(180deg,color-mix(in oklab,var(--led-primary) 45%, transparent),transparent) border-box;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+    opacity:.4;pointer-events:none;transition:opacity .2s ease}
+  .nb:hover::before{opacity:.65}
+  /* Presets */
+  .preset-rainbow .neon, .preset-rainbow .nb::before { animation:rainbow 12s ease-in-out infinite alternate }
+  @keyframes rainbow{0%{filter:hue-rotate(0) saturate(.95)}50%{filter:hue-rotate(180deg) saturate(1.05)}100%{filter:hue-rotate(360deg) saturate(.95)}}
+  .pixel .nb::after{
+    content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:
+      repeating-conic-gradient(from var(--t,0deg), color-mix(in oklab,var(--led-primary) 55%, transparent) 0 2deg, transparent 2deg 10deg) border-box;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.35;animation:spin 28s linear infinite
+  }
+  @keyframes spin{to{--t:360deg}}
+  /* LED off */
+  .led-off .neon{ text-shadow:none!important }
+  .led-off .halo, .led-off .nb::before, .led-off .nb::after, .led-off .logo{ box-shadow:none!important; filter:none!important }
+  /* Floating contacts */
+  .fab{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;flex-direction:column;gap:10px}
+  .fab a{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:var(--surface);
+    border:1px solid var(--border);text-decoration:none;color:var(--text);font-weight:800;box-shadow:var(--shadow-1)}
+  .fab svg{width:18px;height:18px}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  /* Modal */
+  .modal{position:fixed;inset:0;display:none;place-items:center;z-index:80;background:rgba(0,0,0,.55);padding:16px}
+  .modal.open{display:grid}
+  .sheet{width:min(720px,100%);background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:16px}
+  .hint{color:var(--muted);font-size:13px}
+  /* Pay modal */
+  .paygrid{display:grid;gap:14px}
+  @media(min-width:720px){.paygrid{grid-template-columns:300px 1fr}}
+  .qrbox{display:grid;place-items:center;border:1px dashed var(--border);border-radius:12px;padding:10px;background:var(--surface-2)}
+  .qrimg{max-width:100%;height:auto}
+  .kv{display:grid;grid-template-columns:130px 1fr;gap:6px 10px;align-items:center}
+  .field{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  /* Footer center + rainbow LED on text */
+  .banner.center{ justify-content:center; }
+  .footer-rainbow{
+    font-weight:800; letter-spacing:.2px;
+    animation:footerHue 12s linear infinite;
+    text-shadow:
+      0 0 calc(var(--glow)*.6)  color-mix(in oklab,var(--led-primary) 60%, transparent),
+      0 0 calc(var(--glow)*1.1) color-mix(in oklab,var(--led-secondary) 45%, transparent);
+  }
+  @keyframes footerHue{ to{ filter:hue-rotate(360deg); } }
+  .led-off .footer-rainbow{ animation:none; text-shadow:none; }
+</style>
+</head>
+<body class="theme-dark">
+  <div class="wrap">
+    <header>
+      <div class="brand" id="brand" title="Nhấn 5 lần hoặc Ctrl+Shift+U để mở admin">
+        <div class="logo halo" aria-hidden="true"></div>
+        <div class="title neon">Báo giá Xu • Bậc giá + Thanh toán</div>
+      </div>
+      <div class="controls" role="group" aria-label="Điều khiển">
+        <button class="switch" id="theme">Dark/Light</button>
+        <button class="switch" id="led">LED Mode</button>
+        <select id="preset" title="Preset LED">
+          <option value="blue" selected>Blue Neon</option>
+          <option value="rainbow">Rainbow Breathe</option>
+          <option value="pixel">Pixel Marquee</option>
+        </select>
+      </div>
+      <div class="banner">
+        <strong class="neon">CẬP NHẬT GIÁ XU MỚI NHẤT</strong>
+        <span class="stamp" id="stamp">Cập nhật: --/--/----</span>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- NHẬP & TÍNH -->
+      <section class="card nb halo">
+        <h2 class="neon" style="margin-top:0">Chọn số lượng Xu</h2>
+        <div class="row">
+          <div class="input">
+            <label for="qty" class="muted">Số lượng (Xu):</label>
+            <input id="qty" type="number" min="1" step="1" value="1000" inputmode="numeric" aria-describedby="help-qty" />
+            <small id="help-qty" class="muted">Tối đa <b id="maxHint">2.500.000</b> Xu · dùng chips nhanh</small>
+          </div>
+          <input id="range" type="range" min="1" max="2500000" step="1" value="1000" />
+          <div class="chips" aria-label="Chọn nhanh">
+            <button class="chip" data-q="1000">1.000</button>
+            <button class="chip" data-q="5000">5.000</button>
+            <button class="chip" data-q="50000">50.000</button>
+            <button class="chip" data-q="100000">100.000</button>
+            <button class="chip" data-q="250000">250.000</button>
+            <button class="chip" data-q="500000">500.000</button>
+            <button class="chip" data-q="1000000">1.000.000</button>
+            <button class="chip" data-q="2500000">2.500.000</button>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
+        <div class="row">
+          <div>
+            <div class="muted">Đơn giá hiệu lực</div>
+            <div class="big" id="unit">—</div>
+            <small class="muted" id="tierNote">—</small>
+          </div>
+          <div>
+            <div class="muted">Thành tiền</div>
+            <div class="big vnd" id="total">—</div>
+            <div class="muted" id="formula">—</div>
+            <div class="actions">
+              <button class="btn" id="copy">Sao chép giá</button>
+              <button class="btn" id="payBtn">Thanh toán</button>
+              <span class="toast" id="copied">Đã sao chép</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CỘT PHẢI -->
+      <aside class="card nb halo">
+        <h2 class="neon" style="margin-top:0">Bậc giá & lưu ý</h2>
+        <ul class="muted" style="margin-top:6px">
+          <li><b>&lt; 50.000</b> Xu → <b>290.000 đ / 1.000 Xu</b> (290 đ/Xu)</li>
+          <li><b>≥ 50.000</b> Xu → <b>286.000 đ / 1.000 Xu</b> (286 đ/Xu)</li>
+          <li><b>≥ 100.000</b> Xu → <b>285.000 đ / 1.000 Xu</b> (285 đ/Xu)</li>
+          <li>Số lượng tối đa: <b>2.500.000</b> Xu</li>
+        </ul>
+
+        <!-- THÔNG TIN THANH TOÁN -->
+        <div class="card nb halo" style="margin-top:12px">
+          <h3 class="neon" style="margin:0 0 8px">Thông Tin Thanh Toán</h3>
+          <div class="kv" style="margin-top:6px">
+            <div class="muted">Ngân hàng</div><div><b>BIDV</b></div>
+            <div class="muted">Chủ TK</div><div><b>TRAN TAN PHAT</b></div>
+            <div class="muted">Số TK</div>
+            <div class="field">
+              <code id="accText">8872060824</code>
+              <button class="btn" id="copyAcc2" title="Sao chép số tài khoản">Sao chép</button>
+            </div>
+            <div class="muted">Số tiền hiện tại</div>
+            <div class="field">
+              <b id="amountInline" class="vnd">—</b>
+              <button class="btn" id="copyAmount2" title="Sao chép số tiền">Sao chép</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="btn" id="quickPay">Tạo QR / Thanh toán</button>
+            <span class="hint">Nội dung chuyển khoản: <b>Mặc định của ngân hàng</b>.</span>
+          </div>
+        </div>
+      
+          <div class="card nb halo" style="margin-top:12px">
+            <h3 class="neon" style="margin:0 0 8px">Thông báo Xác thực thanh toán &amp; Quét QR nạp</h3>
+            <ol class="muted" style="margin:6px 0 10px 18px">
+              <li>Sau khi thanh toán, vui lòng <b>chụp lại bill/biên lai hoặc ảnh màn hình</b>.</li>
+              <li>Nhấn <b>Gửi Zalo</b> để mở chat và gửi bill/biên lai cho <b>ADMIN</b> xác nhận.</li>
+              <li>ADMIN xác nhận xong sẽ <b>gửi mã QR nạp</b> cho bạn.</li>
+            </ol>
+            <div class="actions">
+              <a class="btn" href="https://zalo.me/0946743849" target="_blank" rel="noopener" aria-label="Gửi Zalo">
+                Gửi Zalo
+              </a>
+              <span class="hint">Không cần upload bill trên web – gửi qua Zalo Admin.</span>
+            </div>
+          </div>
+
+      </aside>
+    </main>
+
+    <!-- FOOTER: giữa + LED 7 màu -->
+    <footer class="wrap" style="padding-left:0;padding-right:0">
+      <div class="banner center" style="margin-top:16px">
+        <span class="footer-rainbow neon">© 2025 · Thuyết kế bởi TRAN TAN PHAT ☑</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Floating contacts -->
+  <div class="fab" aria-label="Liên hệ">
+    <a href="https://zalo.me/0946743849" target="_blank" rel="noopener" aria-label="Chat Zalo">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H9.5L5 21v-5.5A10 10 0 0 1 4 13V5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      Zalo
+    </a>
+    <a href="tel:0876124777" aria-label="Gọi điện">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.6 10.8a15.7 15.7 0 0 0 6.6 6.6l2.2-2.2a1.5 1.5 0 0 1 1.6-.36c1.1.37 2.3.56 3.5.56a1.5 1.5 0 0 1 1.5 1.5V20a2 2 0 0 1-2 2C10.7 22 2 13.3 2 2a2 2 0 0 1 2-2h1.5A1.5 1.5 0 0 1 7 1.5c0 1.2.19 2.4.56 3.5.2.5.1 1.1-.36 1.6L5 8.8l1.6 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      Gọi ngay
+    </a>
+  </div>
+
+  <!-- Pay Modal -->
+  <div class="modal" id="payModal" aria-modal="true" role="dialog" aria-labelledby="payTitle">
+    <div class="sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
+        <h3 id="payTitle" class="neon" style="margin:0">Thanh toán VietQR – BIDV</h3>
+        <button class="btn" id="closePay">Đóng</button>
+      </div>
+      <div class="paygrid">
+        <div class="qrbox">
+          <img id="qrImg" alt="Mã VietQR" class="qrimg" />
+        </div>
+        <div>
+          <div class="kv">
+            <div class="muted">Ngân hàng</div><div><b>BIDV</b></div>
+            <div class="muted">Chủ TK</div><div><b>TRAN TAN PHAT</b></div>
+            <div class="muted">Số TK</div>
+            <div class="field">
+              <code id="accText">8872060824</code>
+              <button class="btn" id="copyAcc">Sao chép</button>
+            </div>
+            <div class="muted">Số tiền</div>
+            <div class="field">
+              <b id="amountText" class="vnd">—</b>
+              <button class="btn" id="copyAmount">Sao chép</button>
+            </div>
+            <div class="muted">Nội dung</div>
+            <div class="field" style="grid-column:span 1">
+              <span class="hint">Mặc định (theo ngân hàng)</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <a class="btn" id="openQR" target="_blank" rel="noopener">Mở QR</a>
+            <span class="hint">Nếu QR không hiện, bấm “Mở QR” hoặc chuyển khoản thủ công bằng STK trên.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin mini -->
+  <div class="modal" id="admin" style="display:none">
+    <div class="sheet" style="width:min(620px,100%)">
+      <h3 class="neon" style="margin:0 0 6px">Admin mini • Bậc giá</h3>
+      <p class="hint">Mở bằng <span style="font:12px ui-monospace">Ctrl+Shift+U</span> hoặc nhấn logo 5 lần · Mật khẩu <b>2407</b>. Lưu trong <i>localStorage</i>.</p>
+      <div class="row" style="grid-template-columns:1fr 1fr">
+        <label>Giá &lt; 50k (đ/Xu): <input id="pBase" type="number" min="0" step="1" value="290" /></label>
+        <label>Giá ≥ 50k (đ/Xu):   <input id="p50"   type="number" min="0" step="1" value="286" /></label>
+        <label>Giá ≥ 100k (đ/Xu):  <input id="p100"  type="number" min="0" step="1" value="285" /></label>
+        <label>Tối đa (Xu):        <input id="pMax"  type="number" min="1" step="1" value="2500000" /></label>
+      </div>
+      <div class="row" style="grid-template-columns:1fr">
+        <label>Ghi chú: <input id="pNote" type="text" placeholder="VD: Ưu đãi theo mốc 50k/100k" /></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="savePrice">Lưu</button>
+          <button class="btn" id="closeAdmin">Đóng</button>
+        </div>
+        <small class="hint">Lưu sẽ cập nhật thời gian “Cập nhật: [ngày/giờ]”.</small>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ====== Hằng số ======
+  const TZ = 'Asia/Ho_Chi_Minh';
+  const ADMIN_PASS = '2407';
+  const LS = 'xuTierPricing.v1';
+  const THEME_KEY = 'themePref';
+  const LED_KEY = 'ledPref';
+  const PRESET_KEY = 'presetPref';
+
+  // Thông tin ngân hàng
+  const BANK_CODE = 'BIDV';                 // VietQR bank code
+  const ACCOUNT_NO = '8872060824';
+  const ACCOUNT_NAME = 'TRAN TAN PHAT';
+
+  // ====== Trạng thái giá theo bậc (đ/Xu) ======
+  const state = {
+    priceBase: 290,    // < 50k
+    price50k: 286,     // ≥ 50k
+    price100k: 285,    // ≥ 100k
+    maxQty: 2500000,   // tối đa
+    note: '',
+    updatedAt: Date.now()
+  };
+  try{
+    const s = JSON.parse(localStorage.getItem(LS));
+    if(s && typeof s.priceBase === 'number'){ Object.assign(state, s); }
+  }catch(e){}
+
+  // ====== Helpers ======
+  const $ = (q,el=document) => el.querySelector(q);
+  const fmtVND = new Intl.NumberFormat('vi-VN',{style:'currency',currency:'VND',maximumFractionDigits:0});
+  const fmtNum = new Intl.NumberFormat('vi-VN');
+
+  // DOM
+  const qty = $('#qty'), range = $('#range'), total = $('#total'), formula = $('#formula'),
+        unit = $('#unit'), stamp = $('#stamp'), tierNote = $('#tierNote'), maxHint = $('#maxHint');
+  const copyBtn = $('#copy'), copied = $('#copied'), payBtn = $('#payBtn');
+  const amountInline = $('#amountInline');
+
+  // clamp controls by max
+  function applyMax(){
+    range.max = state.maxQty;
+    maxHint.textContent = fmtNum.format(state.maxQty);
+    if(+qty.value > state.maxQty){ setQty(state.maxQty); }
+  }
+
+  function getUnitByQty(q){
+    if(q >= 100000) return { perXu: state.price100k, label: 'Bậc ≥ 100k Xu', perK: state.price100k*1000 };
+    if(q >= 50000)  return { perXu: state.price50k,  label: 'Bậc ≥ 50k Xu',  perK: state.price50k*1000  };
+    return { perXu: state.priceBase, label: 'Bậc < 50k Xu', perK: state.priceBase*1000 };
+  }
+
+  function renderStamp(){
+    const dt = new Date(state.updatedAt);
+    const t = dt.toLocaleString('vi-VN',{timeZone:TZ,hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    stamp.textContent = 'Cập nhật: ' + t + (state.note ? ' · ' + state.note : '');
+  }
+
+  function renderUnit(q){
+    const u = getUnitByQty(q);
+    unit.textContent = `${fmtNum.format(u.perK)} đ / 1.000 Xu  (${fmtNum.format(u.perXu)} đ/Xu)`;
+    tierNote.textContent = u.label;
+  }
+
+  function setQty(v){
+    v = Math.max(1, Math.min(state.maxQty, Math.floor(Number(v)||1)));
+    qty.value = v;
+    range.value = Math.min(v, Number(range.max));
+    calc();
+  }
+
+  function calc(){
+    const q = Math.max(1, Math.min(state.maxQty, Math.floor(Number(qty.value)||1)));
+    const { perXu, perK } = getUnitByQty(q);
+    const money = Math.round(q * perXu);
+    total.textContent = fmtVND.format(money);
+    amountInline.textContent = fmtVND.format(money);
+    formula.textContent = `${fmtNum.format(q)} Xu × ${fmtNum.format(perXu)} đ/Xu  (= ${fmtNum.format(perK)} đ/1.000 Xu)`;
+    renderUnit(q);
+  }
+
+  // init
+  applyMax();
+  renderStamp();
+  setQty(qty.value);
+
+  // events
+  qty.addEventListener('input', e => setQty(e.target.value));
+  range.addEventListener('input', e => setQty(e.target.value));
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => setQty(c.dataset.q)));
+
+  copyBtn.addEventListener('click', async () => {
+    try{
+      await navigator.clipboard.writeText(total.textContent);
+      copied.classList.add('show');
+      setTimeout(()=> copied.classList.remove('show'), 1200);
+    }catch(e){ alert('Trình duyệt chặn sao chép. Hãy copy thủ công: ' + total.textContent); }
+  });
+
+  // ====== Theme + LED + Preset ======
+  const body = document.body;
+  const themeBtn = $('#theme'), ledBtn = $('#led'), presetSel = $('#preset');
+
+  function applyTheme(pref){
+    body.classList.toggle('theme-light', pref==='light');
+    body.classList.toggle('theme-dark', pref!=='light');
+    localStorage.setItem(THEME_KEY, pref);
+    themeBtn.textContent = pref==='light' ? 'Light (Đang bật)' : 'Dark/Light';
+  }
+  function applyLED(on){
+    body.classList.toggle('led-off', !on);
+    localStorage.setItem(LED_KEY, on?'on':'off');
+    ledBtn.textContent = on ? 'LED Mode (Đang bật)' : 'LED Mode';
+  }
+  function applyPreset(preset){
+    body.classList.remove('preset-rainbow','pixel');
+    document.querySelectorAll('.nb').forEach(el=>el.classList.remove('pixel'));
+    document.documentElement.style.setProperty('--led-primary','#34b3ff');
+    document.documentElement.style.setProperty('--led-secondary','#7ad7ff');
+    document.documentElement.style.setProperty('--led-intensity','.35');
+    if(preset==='rainbow'){ body.classList.add('preset-rainbow'); }
+    if(preset==='pixel'){ document.querySelectorAll('.nb').forEach(el=>el.classList.add('pixel')); }
+    localStorage.setItem(PRESET_KEY, preset);
+    presetSel.value = preset;
+  }
+  applyTheme(localStorage.getItem(THEME_KEY) || (matchMedia('(prefers-color-scheme: light)').matches ? 'light':'dark'));
+  applyLED((localStorage.getItem(LED_KEY)||'on')==='on');
+  applyPreset(localStorage.getItem(PRESET_KEY) || 'blue');
+
+  themeBtn.addEventListener('click', ()=> applyTheme(body.classList.contains('theme-light')?'dark':'light'));
+  ledBtn.addEventListener('click', ()=> applyLED(body.classList.contains('led-off')));
+  presetSel.addEventListener('change', e => applyPreset(e.target.value));
+
+  // ====== Thanh toán VietQR (nội dung mặc định của NH) ======
+  const payModal = $('#payModal');
+  const closePay = $('#closePay');
+  const qrImg = $('#qrImg');
+  const openQR = $('#openQR');
+  const amountText = $('#amountText');
+  const copyAcc = $('#copyAcc'), copyAcc2 = $('#copyAcc2');
+  const copyAmount = $('#copyAmount'), copyAmount2 = $('#copyAmount2');
+  const quickPay = $('#quickPay');
+
+  function openPay(){
+    const q = Math.max(1, Math.min(state.maxQty, Math.floor(Number(qty.value)||1)));
+    const { perXu } = getUnitByQty(q);
+    const money = Math.round(q * perXu);
+
+    amountText.textContent = fmtVND.format(money);
+
+    // KHÔNG truyền addInfo => nội dung chuyển khoản mặc định của NH
+    const params = new URLSearchParams();
+    params.set('amount', String(money));
+    params.set('accountName', ACCOUNT_NAME);
+    const url = `https://img.vietqr.io/image/${BANK_CODE}-${ACCOUNT_NO}-qr_only.png?` + params.toString();
+
+    qrImg.src = url;
+    qrImg.alt = `VietQR BIDV ${ACCOUNT_NO} – ${fmtVND.format(money)}`;
+    openQR.href = url;
+
+    payModal.classList.add('open');
+  }
+
+  payBtn.addEventListener('click', openPay);
+  quickPay.addEventListener('click', openPay);
+  closePay.addEventListener('click', ()=> payModal.classList.remove('open'));
+  payModal.addEventListener('click', (e)=>{ if(e.target === payModal) payModal.classList.remove('open'); });
+
+  async function copy(text){ try{ await navigator.clipboard.writeText(text); }catch(e){} }
+  copyAcc.addEventListener('click', ()=> copy(ACCOUNT_NO));
+  copyAcc2.addEventListener('click', ()=> copy(ACCOUNT_NO));
+  copyAmount.addEventListener('click', ()=>{
+    const q = Math.max(1, Math.min(state.maxQty, Math.floor(Number(qty.value)||1)));
+    const { perXu } = getUnitByQty(q);
+    const money = Math.round(q * perXu);
+    copy(String(money));
+  });
+  copyAmount2.addEventListener('click', ()=>{
+    const q = Math.max(1, Math.min(state.maxQty, Math.floor(Number(qty.value)||1)));
+    const { perXu } = getUnitByQty(q);
+    const money = Math.round(q * perXu);
+    copy(String(money));
+  });
+
+  // ====== Admin mini ======
+  const admin = $('#admin'), pBase = $('#pBase'), p50 = $('#p50'), p100 = $('#p100'), pMax = $('#pMax'), pNote = $('#pNote');
+  let clicks=0, timer=null;
+  $('#brand').addEventListener('click', ()=>{
+    clicks++; clearTimeout(timer); timer=setTimeout(()=>clicks=0, 900);
+    if(clicks>=5) openAdmin();
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='u'){ e.preventDefault(); openAdmin(); }
+  });
+  function openAdmin(){
+    const pass = prompt('Nhập mật khẩu:');
+    if(pass!==ADMIN_PASS) { alert('Sai mật khẩu.'); return; }
+    admin.classList.add('open');
+    pBase.value = state.priceBase;
+    p50.value = state.price50k;
+    p100.value = state.price100k;
+    pMax.value = state.maxQty;
+    pNote.value = state.note || '';
+  }
+  $('#closeAdmin').addEventListener('click', ()=> admin.classList.remove('open'));
+  $('#savePrice').addEventListener('click', ()=>{
+    const b = Number(pBase.value), p5 = Number(p50.value), p10 = Number(p100.value), m = Math.floor(Number(pMax.value)||1);
+    if(!(b>=0 && p5>=0 && p10>=0 && m>=1)) { alert('Thông số không hợp lệ'); return; }
+    state.priceBase = b; state.price50k = p5; state.price100k = p10; state.maxQty = m;
+    state.note = pNote.value.trim();
+    state.updatedAt = Date.now();
+    localStorage.setItem(LS, JSON.stringify(state));
+    applyMax(); renderStamp(); calc();
+    admin.classList.remove('open');
+    alert('Đã lưu bậc giá & giới hạn.');
+  });
+})();
+</script>
+</body>
+</html>
