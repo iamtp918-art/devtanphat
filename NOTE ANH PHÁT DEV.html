@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+<title>Note Trang Tính + Đếm Ngược (Light LED • Offline • Có mật khẩu)</title>
+<meta name="color-scheme" content="light dark">
+<style>
+/* ================= THEME (Light default) ================= */
+:root{
+  --bg:#f7fafc; --panel:#ffffff; --panel-2:#f3f6fb; --txt:#0b1220; --muted:#667085; --line:#e6e8ef; --cell:#fbfdff;
+  --shadow:0 10px 30px rgba(16,24,40,.08);
+  --radius:16px; --radius-sm:12px;
+  --led1:#00e7ff; --led2:#7c4dff; --led3:#00ffa2;
+  --ok:#16a34a; --warn:#d97706; --danger:#dc2626;
+  --ring:0 0 0 3px rgba(14,165,233,.25), 0 0 0 1px rgba(14,165,233,.35) inset;
+}
+.dark{
+  --bg:#0b0f14; --panel:#0e1522; --panel-2:#0f1624; --txt:#e9eef7; --muted:#a8b1c3; --line:#1d2637; --cell:rgba(255,255,255,.02);
+  --shadow:0 10px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--txt);
+  font:14px/1.5 system-ui,-apple-system,Segoe UI,Inter,Roboto,Helvetica,Arial,"Noto Sans";
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(124,77,255,.08), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(0,231,255,.08), transparent 70%),
+    linear-gradient(180deg, #ffffff, var(--bg));
+}
+.container{max-width:1200px; margin:32px auto; padding:0 16px}
+
+/* ================= Static LED Frame ================= */
+.frame-led{position:relative}
+.frame-led::after{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; padding:1.4px;
+  background:linear-gradient(90deg,var(--led1),var(--led2),var(--led3));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; opacity:.95;
+}
+
+/* Header */
+.header{
+  display:flex; gap:16px; align-items:center; justify-content:space-between;
+  padding:16px 18px; border-radius:var(--radius);
+  background:var(--panel); border:1px solid var(--line); box-shadow:var(--shadow);
+}
+.brand{display:flex; gap:12px; align-items:center}
+.logo{
+  width:44px; height:44px; border-radius:12px;
+  background:
+    radial-gradient(circle at 35% 30%, #fff 0%, #c7f8ff 12%, #00e7ff 28%, transparent 30%),
+    radial-gradient(circle at 70% 65%, #fff 0%, #e0d6ff 16%, #7c4dff 30%, transparent 32%),
+    var(--panel-2);
+  border:1px solid var(--line);
+  box-shadow: inset 0 0 18px rgba(0,231,255,.35), inset 0 0 26px rgba(124,77,255,.25), 0 6px 16px rgba(16,24,40,.08);
+}
+.title{font-weight:800; letter-spacing:.2px}
+.title small{display:block; font-weight:500; color:var(--muted)}
+.actions{display:flex; flex-wrap:wrap; gap:8px}
+
+/* Buttons & Inputs */
+.btn{
+  appearance:none; border:1px solid var(--line); background:var(--panel);
+  color:var(--txt); padding:10px 12px; border-radius:12px; cursor:pointer;
+  transition:.2s ease; box-shadow:0 1px 0 #fff inset, var(--shadow);
+}
+.btn:hover{transform:translateY(-1px); box-shadow:var(--shadow), 0 0 0 1px rgba(14,165,233,.2) inset}
+.btn.primary{border-color:transparent; background:linear-gradient(90deg,var(--led1),var(--led3)); color:#05252a; font-weight:800}
+.btn.ghost{background:var(--panel-2)}
+.btn.danger{border-color:#fecaca; color:#991b1b}
+.switch{display:inline-flex; gap:8px; align-items:center; font-weight:700}
+.switch input{appearance:none; width:40px; height:22px; border-radius:999px; background:#e5e7eb; position:relative; outline:none; cursor:pointer; border:1px solid var(--line)}
+.switch input::after{content:""; position:absolute; left:3px; top:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:.18s}
+.switch input:checked{background:linear-gradient(90deg,var(--led1),var(--led2))}
+.switch input:checked::after{left:21px}
+.input, select{width:auto; padding:10px 12px; border-radius:10px; background:#fff; border:1px solid var(--line); color:var(--txt)}
+.input:focus{outline:none; box-shadow:var(--ring)}
+
+/* Tabs & Panels */
+.tabs{margin-top:16px; display:grid; grid-template-columns:1fr; gap:16px}
+.tab-buttons{display:flex; gap:8px; flex-wrap:wrap}
+.tab-buttons .btn[aria-selected="true"]{box-shadow:var(--ring); border-color:transparent}
+.panels{display:grid; gap:16px}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow)}
+
+/* Spreadsheet */
+.sheet-toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px}
+.sheet{border-radius:var(--radius-sm); overflow:auto; border:1px solid var(--line); background:var(--panel-2)}
+.grid{border-collapse:collapse; width:100%; min-width:720px; table-layout:fixed}
+.grid th,.grid td{border:1px solid var(--line); padding:8px; height:36px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:var(--cell)}
+.grid th{position:sticky; top:0; background:linear-gradient(180deg,#fff,#f7fafc); z-index:2}
+.grid .rowhead{position:sticky; left:0; background:linear-gradient(180deg,#fff,#f7fafc); z-index:1; font-weight:800; color:var(--muted)}
+.cell[contenteditable="true"]:focus{background:rgba(14,165,233,.12); box-shadow:inset 0 0 0 2px rgba(14,165,233,.4)}
+.toolbar-sep{width:1px; height:28px; background:var(--line); margin:0 6px}
+
+/* Countdown */
+.count-form{display:flex; gap:8px; flex-wrap:wrap; align-items:end}
+.list{display:grid; gap:10px; margin-top:12px}
+.timer{display:flex; gap:12px; align-items:center; justify-content:space-between; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px; box-shadow:var(--shadow)}
+.timer .name{font-weight:800}
+.timer .time{font-variant-numeric:tabular-nums; letter-spacing:.5px}
+.badge{display:inline-flex; align-items:center; gap:6px; padding:6px 8px; border-radius:999px; border:1px solid var(--line); background:var(--panel-2); color:var(--muted); font-weight:700}
+
+/* Notes */
+.notes-wrap{display:grid; gap:8px}
+.note-area{min-height:180px; border-radius:12px; padding:12px; background:#fff; border:1px solid var(--line); outline:none}
+.note-area:focus{box-shadow:var(--ring); border-color:transparent}
+
+/* Footer */
+.footer{opacity:.8; font-size:12px; text-align:center; margin:18px 0}
+
+/* ================= Lock Screen ================= */
+.lock-overlay{
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  padding:24px; background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(124,77,255,.10), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(0,231,255,.10), transparent 70%),
+    linear-gradient(180deg, #ffffff, #eef3fb);
+  z-index:9999;
+}
+.lock-card{
+  width:min(560px, 100%); background:var(--panel); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); padding:20px;
+  position:relative;
+}
+.lock-head{display:flex; gap:12px; align-items:center; margin-bottom:12px}
+.lock-logo{
+  width:48px; height:48px; border-radius:12px;
+  background:
+    radial-gradient(circle at 35% 30%, #fff 0%, #c7f8ff 12%, #00e7ff 28%, transparent 30%),
+    radial-gradient(circle at 70% 65%, #fff 0%, #e0d6ff 16%, #7c4dff 30%, transparent 32%),
+    var(--panel-2);
+  border:1px solid var(--line); box-shadow: inset 0 0 18px rgba(0,231,255,.35), inset 0 0 26px rgba(124,77,255,.25);
+}
+.lock-title{font-weight:800; font-size:18px}
+.lock-sub{color:var(--muted); margin-top:2px}
+.lock-row{display:flex; gap:10px; align-items:center; margin-top:12px}
+.lock-input{flex:1; padding:12px 12px; border:1px solid var(--line); border-radius:12px; font-size:16px}
+.lock-input:focus{outline:none; box-shadow:var(--ring)}
+.lock-eye{cursor:pointer; user-select:none}
+.lock-actions{display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:12px}
+.lock-err{color:#b91c1c; font-weight:700; min-height:20px}
+.frame-led-tight{position:relative}
+.frame-led-tight::after{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; padding:1.2px;
+  background:linear-gradient(90deg,var(--led1),var(--led2),var(--led3));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; opacity:.95;
+}
+@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(2px)}30%,50%,70%{transform:translateX(-4px)}40%,60%{transform:translateX(4px)}}
+.shake{animation:shake .5s ease}
+.hidden{display:none}
+
+/* Responsive */
+@media (max-width:760px){
+  .title{font-size:16px}
+  .btn{padding:8px 10px}
+  .grid{min-width:640px}
+}
+</style>
+</head>
+<body>
+  <!-- ========= LOCK OVERLAY ========= -->
+  <div id="lockOverlay" class="lock-overlay">
+    <div class="lock-card frame-led-tight" id="lockCard">
+      <div class="lock-head">
+        <div class="lock-logo" aria-hidden="true"></div>
+        <div>
+          <div class="lock-title">Nhập mật khẩu để vào</div>
+          <div class="lock-sub">NOTE CỦA ANH PHÁT DEV</div>
+        </div>
+      </div>
+      <div class="lock-row">
+        <input id="lockInput" class="lock-input" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" aria-label="Mật khẩu" />
+        <button id="toggleEye" class="btn lock-eye" title="Hiện/ẩn">👁️</button>
+      </div>
+      <div class="lock-actions">
+        <label class="switch" title="Dùng Dark sau khi mở">
+          <input id="prefersDark" type="checkbox" /><span>Dark sau khi mở</span>
+        </label>
+        <label class="switch" title="Nhớ trong phiên này">
+          <input id="rememberSess" type="checkbox" checked /><span>Nhớ phiên</span>
+        </label>
+        <button id="unlockBtn" class="btn primary">Mở khoá</button>
+      </div>
+      <div id="lockErr" class="lock-err"></div>
+      <div style="color:var(--muted); font-size:12px; margin-top:6px">
+        Gợi ý: mật khẩu gồm 100 chữ số.
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= APP (Ẩn cho đến khi mở khóa) ========= -->
+  <div id="app" class="container hidden">
+    <header class="header frame-led" role="banner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true" title="Neon crest"></div>
+        <div class="title">
+          NOTE CỦA ANH PHÁT DEV
+          <small>Do TRẦN TẤN PHÁT điều hành</small>
+        </div>
+      </div>
+      <div class="actions">
+        <label class="switch" title="Bật Dark nếu cần">
+          <input id="modeToggle" type="checkbox" />
+          <span>Dark</span>
+        </label>
+        <button class="btn ghost" id="lockBtn" title="Khóa chỉnh sửa">🔒 Khóa</button>
+        <button class="btn" id="exportBtn" title="Xuất dữ liệu (.json)">⬇️ Xuất</button>
+        <label class="btn" title="Nhập dữ liệu (.json)">
+          ⬆️ Nhập <input id="importInput" type="file" accept="application/json" hidden />
+        </label>
+        <button class="btn primary" id="shareUrlBtn" title="Tạo link chứa dữ liệu">🔗 Tạo Link</button>
+      </div>
+    </header>
+
+    <main class="tabs" role="main">
+      <div class="tab-buttons" role="tablist" aria-label="Chức năng">
+        <button class="btn" role="tab" aria-selected="true" data-tab="sheet">🧮 Trang tính</button>
+        <button class="btn" role="tab" aria-selected="false" data-tab="count">⏳ Đếm ngược</button>
+        <button class="btn" role="tab" aria-selected="false" data-tab="notes">📝 Ghi chú</button>
+        <span class="badge">AutoSave</span>
+      </div>
+
+      <section class="panels">
+        <!-- SHEET -->
+        <div class="panel frame-led" role="tabpanel" id="sheet" aria-labelledby="tab-sheet">
+          <div class="sheet-toolbar">
+            <button class="btn" id="addRow">+ Dòng</button>
+            <button class="btn" id="addCol">+ Cột</button>
+            <button class="btn" id="clearSheet">🧹 Clear</button>
+            <div class="toolbar-sep"></div>
+            <button class="btn" id="bold"><b>B</b></button>
+            <button class="btn" id="italic"><i>I</i></button>
+            <label class="btn">🎨 Nền ô
+              <input id="bgcolor" type="color" value="#0ea5e9" hidden />
+            </label>
+            <div class="toolbar-sep"></div>
+            <input class="input" id="filter" placeholder="Lọc nhanh trong trang tính..." />
+            <small style="color:var(--muted)">Dán trực tiếp từ Excel/CSV</small>
+          </div>
+
+          <div class="sheet" id="sheetWrap" tabindex="0" aria-label="Bảng trang tính">
+            <table class="grid" id="grid" aria-describedby="sheetHelp"></table>
+          </div>
+          <p id="sheetHelp" style="color:var(--muted); margin-top:8px">
+            Mẹo: nhấn vào ô để sửa • Tab/Shift+Tab di chuyển • Enter xuống dòng dưới • Ctrl/Cmd+C/V copy/dán.
+          </p>
+        </div>
+
+        <!-- COUNTDOWN -->
+        <div class="panel frame-led" role="tabpanel" id="count" hidden>
+          <form class="count-form" id="countForm">
+            <div>
+              <label>Tên sự kiện</label><br/>
+              <input class="input" id="countName" type="text" placeholder="Ví dụ: Hạn giao hàng đơn #A123" required />
+            </div>
+            <div>
+              <label>Ngày giờ đến hạn</label><br/>
+              <input class="input" id="countTime" type="datetime-local" required />
+            </div>
+            <div>
+              <label>Chuông</label><br/>
+              <select class="input" id="countBell">
+                <option value="beep">Beep</option>
+                <option value="ping">Ping</option>
+                <option value="none">Tắt</option>
+              </select>
+            </div>
+            <button class="btn primary" type="submit">+ Thêm</button>
+          </form>
+          <div class="list" id="timerList"></div>
+        </div>
+
+        <!-- NOTES -->
+        <div class="panel frame-led" role="tabpanel" id="notes" hidden>
+          <div class="notes-wrap">
+            <div contenteditable="true" id="noteArea" class="note-area" aria-label="Ghi chú nhanh (có thể dán ảnh)">
+              <p><b>Gợi ý:</b> Ghi checklist, link, mô tả công việc... Kéo thả/ dán ảnh chụp màn hình vào đây để lưu cùng ghi chú.</p>
+            </div>
+            <div class="sheet-toolbar">
+              <button class="btn" id="noteClear">🧽 Dọn trống</button>
+              <button class="btn primary" id="noteSave">💾 Lưu ghi chú</button>
+              <small style="color:var(--muted)">Tự lưu sau khi dừng gõ ~1s</small>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      © 2025 · Designed and built by TRAN TAN PHAT
+    </footer>
+  </div>
+
+<script>
+/* ========= Small helpers ========= */
+const $ = (q, root=document)=>root.querySelector(q);
+const $$ = (q, root=document)=>Array.from(root.querySelectorAll(q));
+const storageKey = "note-trang-tinh-v2-light-led";
+
+/* ========= PASSWORD GATE ========= */
+/* SHA-256("2407") precomputed to avoid lộ pass thô trong code */
+const PASS_SHA256_HEX = "957b4de48fd8d8a83cc5be1ca9d34338fd748a3b16f96ba286894f220eb67a63";
+
+async function sha256Hex(s){
+  if(window.crypto?.subtle){
+    const enc = new TextEncoder().encode(s);
+    const buf = await crypto.subtle.digest("SHA-256", enc);
+    const bytes = Array.from(new Uint8Array(buf));
+    return bytes.map(b=>b.toString(16).padStart(2,"0")).join("");
+  }else{
+    // Fallback (rất hiếm) – so sánh thẳng cho khỏi chặn truy cập
+    return s; 
+  }
+}
+function showApp(){
+  $("#lockOverlay").classList.add("hidden");
+  $("#app").classList.remove("hidden");
+}
+async function tryUnlock(){
+  const inp = $("#lockInput"); const err = $("#lockErr"); const card = $("#lockCard");
+  const val = inp.value.trim();
+  const prefersDark = $("#prefersDark").checked;
+  const remember = $("#rememberSess").checked;
+
+  if(!val){ err.textContent = "Vui lòng nhập mật khẩu."; shake(card); return; }
+  try{
+    const hex = await sha256Hex(val);
+    const ok = (hex===PASS_SHA256_HEX) || (val==="2407" && hex==="2407"); // fallback path
+    if(ok){
+      err.textContent = "";
+      if(remember){ sessionStorage.setItem("unlocked","1"); }
+      if(prefersDark){ document.documentElement.classList.add("dark"); }
+      showApp();
+      setTimeout(()=>$("#lockInput").value="",300);
+    }else{
+      err.textContent = "Sai mật khẩu. Thử lại!";
+      shake(card);
+    }
+  }catch(e){
+    err.textContent = "Có lỗi khi kiểm tra mật khẩu.";
+  }
+}
+function shake(el){ el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); }
+
+$("#unlockBtn").addEventListener("click", tryUnlock);
+$("#lockInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); tryUnlock(); } });
+$("#toggleEye").addEventListener("click", ()=>{
+  const i = $("#lockInput"); i.type = i.type==="password" ? "text" : "password";
+});
+
+/* Auto unlock if session ok */
+(function gateInit(){
+  if(sessionStorage.getItem("unlocked")==="1"){ showApp(); }
+})();
+
+/* ========= App State ========= */
+const state = {
+  sheet: {rows: 12, cols: 6, data:{}},
+  timers: [],
+  notes: ""
+};
+const debounce = (fn, ms=400)=>{let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a), ms);}};
+
+function save(){ try{ localStorage.setItem(storageKey, JSON.stringify(state)); }catch(e){} }
+function load(){
+  const urlData = loadFromHash();
+  if(urlData){ Object.assign(state, urlData); return; }
+  try{
+    const raw = localStorage.getItem(storageKey);
+    if(raw) Object.assign(state, JSON.parse(raw));
+  }catch(e){}
+}
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.download = "notes-countdown.light.json";
+  a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
+}
+function importJSON(file){
+  const fr = new FileReader();
+  fr.onload = () => {
+    try{
+      const obj = JSON.parse(fr.result);
+      Object.assign(state, obj);
+      renderAll(); save();
+    }catch(e){ alert("File không hợp lệ"); }
+  };
+  fr.readAsText(file);
+}
+function shareURL(){
+  try{
+    const json = JSON.stringify(state);
+    const base64 = btoa(unescape(encodeURIComponent(json)));
+    const url = location.origin + location.pathname + "#d=" + base64;
+    navigator.clipboard.writeText(url).then(()=>{
+      alert("Đã copy link. Dán cho người khác để họ thấy cùng dữ liệu.");
+    },()=>{ prompt("Sao chép link thủ công:", url); });
+  }catch(e){
+    prompt("Sao chép link thủ công:", location.origin + location.pathname + "#d=" + btoa(JSON.stringify(state)));
+  }
+}
+function loadFromHash(){
+  const h = location.hash;
+  if(h.startsWith("#d=")){
+    try{
+      const b64 = h.slice(3);
+      const json = decodeURIComponent(escape(atob(b64)));
+      return JSON.parse(json);
+    }catch(e){}
+  }
+  return null;
+}
+
+/* ========= Theme & Lock Edit ========= */
+const modeToggle = $("#modeToggle");
+modeToggle?.addEventListener("change", ()=>{
+  document.documentElement.classList.toggle("dark", modeToggle.checked);
+});
+const lockBtn = $("#lockBtn");
+let locked = false;
+function setLocked(v){
+  locked = v;
+  lockBtn.textContent = locked ? "🔓 Mở khóa" : "🔒 Khóa";
+  $$("#grid .cell").forEach(td=>td.setAttribute("contenteditable", !locked));
+  $("#noteArea").setAttribute("contenteditable", !locked);
+}
+lockBtn?.addEventListener("click", ()=> setLocked(!locked));
+
+/* ========= Tabs ========= */
+$$(".tab-buttons .btn").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    $$(".tab-buttons .btn").forEach(x=>x.setAttribute("aria-selected","false"));
+    b.setAttribute("aria-selected","true");
+    const tab = b.dataset.tab;
+    $$(".panel").forEach(p=>p.hidden = p.id !== tab);
+  });
+});
+
+/* ========= Spreadsheet ========= */
+const grid = $("#grid");
+function colName(i){ let s=""; i++; while(i>0){ const r=(i-1)%26; s = String.fromCharCode(65+r)+s; i = Math.floor((i-1)/26); } return s; }
+function k(r,c){ return r+"-"+c; }
+function getCell(r,c){ return state.sheet.data[k(r,c)] || {v:"", s:{}}; }
+function setCell(r,c,val, style){
+  const key = k(r,c);
+  if(!state.sheet.data[key]) state.sheet.data[key] = {v:"", s:{}};
+  if(val!==undefined) state.sheet.data[key].v = val;
+  if(style){ state.sheet.data[key].s = {...state.sheet.data[key].s, ...style}; }
+}
+function renderSheet(){
+  const {rows, cols} = state.sheet;
+  grid.innerHTML = "";
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  const corner = document.createElement("th"); corner.textContent = "";
+  hr.appendChild(corner);
+  for(let c=0;c<cols;c++){ const th = document.createElement("th"); th.textContent = colName(c); hr.appendChild(th); }
+  thead.appendChild(hr); grid.appendChild(thead);
+  const tb = document.createElement("tbody");
+  for(let r=0;r<rows;r++){
+    const tr = document.createElement("tr");
+    const rh = document.createElement("th"); rh.className="rowhead"; rh.textContent = r+1; tr.appendChild(rh);
+    for(let c=0;c<cols;c++){
+      const td = document.createElement("td");
+      td.className="cell"; td.contentEditable = !locked;
+      const cell = getCell(r,c);
+      td.textContent = cell.v || "";
+      applyStyle(td, cell.s);
+      td.addEventListener("input", onCellInput.bind(null, r,c, td));
+      td.addEventListener("paste", onCellPaste.bind(null, r,c));
+      tr.appendChild(td);
+    }
+    tb.appendChild(tr);
+  }
+  grid.appendChild(tb);
+}
+const onCellInput = debounce((r,c,td)=>{
+  setCell(r,c, td.textContent);
+  save();
+  applyRowFilter();
+}, 250);
+function onCellPaste(r,c,e){
+  const text = (e.clipboardData || window.clipboardData).getData("text");
+  if(!text) return;
+  if(text.includes("\t") || text.includes("\n")){
+    e.preventDefault();
+    const rows = text.replace(/\r/g,"").split("\n").filter(x=>x.length);
+    rows.forEach((row,i)=>{
+      const cols = row.split("\t");
+      cols.forEach((val,j)=>{
+        const R = r+i, C = c+j;
+        if(R>=state.sheet.rows){ state.sheet.rows = R+1; }
+        if(C>=state.sheet.cols){ state.sheet.cols = C+1; }
+        setCell(R,C, val);
+      });
+    });
+    renderSheet(); save();
+  }
+}
+function applyStyle(td, s){
+  td.style.fontWeight = s.bold ? "800" : "500";
+  td.style.fontStyle = s.italic ? "italic" : "normal";
+  td.style.background = s.bg || "var(--cell)";
+}
+function withFocusedCell(fn){
+  const sel = document.getSelection();
+  if(!sel || !sel.anchorNode) return;
+  const td = sel.anchorNode.nodeType===1 ? sel.anchorNode : sel.anchorNode.parentElement;
+  if(!td || !td.classList.contains("cell")) return;
+  const r = td.parentElement.rowIndex-1;
+  const c = td.cellIndex-1;
+  fn(td,r,c); save();
+}
+$("#addRow").addEventListener("click", ()=>{ state.sheet.rows++; renderSheet(); save(); });
+$("#addCol").addEventListener("click", ()=>{ state.sheet.cols++; renderSheet(); save(); });
+$("#clearSheet").addEventListener("click", ()=>{
+  if(confirm("Xóa toàn bộ nội dung trang tính?")){ state.sheet.data = {}; renderSheet(); save(); }
+});
+$("#bold").addEventListener("click", ()=> withFocusedCell((td,r,c)=>{ 
+  const cell = getCell(r,c); const v=!cell.s.bold; setCell(r,c, undefined, {bold:v}); applyStyle(td,{...cell.s, bold:v});
+}));
+$("#italic").addEventListener("click", ()=> withFocusedCell((td,r,c)=>{
+  const cell = getCell(r,c); const v=!cell.s.italic; setCell(r,c, undefined, {italic:v}); applyStyle(td,{...cell.s, italic:v});
+}));
+$("#bgcolor").addEventListener("change", (e)=> withFocusedCell((td,r,c)=>{
+  const v = e.target.value + "22"; const cell = getCell(r,c);
+  setCell(r,c, undefined, {bg:v}); applyStyle(td,{...cell.s, bg:v});
+}));
+
+/* Filter rows */
+const filterInput = $("#filter");
+filterInput.addEventListener("input", debounce(applyRowFilter, 200));
+function applyRowFilter(){
+  const q = filterInput.value.trim().toLowerCase();
+  const rows = $$("#grid tbody tr");
+  if(!q){ rows.forEach(tr=>tr.style.display=""); return; }
+  rows.forEach(tr=>{
+    const cells = Array.from(tr.querySelectorAll("td"));
+    const hit = cells.some(td => (td.textContent||"").toLowerCase().includes(q));
+    tr.style.display = hit? "" : "none";
+  });
+}
+
+/* ========= Countdown ========= */
+const countForm = $("#countForm");
+const timerList = $("#timerList");
+function renderTimers(){
+  timerList.innerHTML = "";
+  if(!state.timers.length){
+    timerList.innerHTML = `<div class="badge">Chưa có hẹn giờ. Thêm ở trên nhé!</div>`;
+    return;
+  }
+  state.timers.sort((a,b)=> (a.done===b.done ? (a.deadline>b.deadline?1:-1) : (a.done?1:-1)));
+  for(const t of state.timers){
+    const div = document.createElement("div");
+    div.className = "timer";
+    div.dataset.id = t.id;
+    div.innerHTML = `
+      <div style="display:flex; gap:10px; align-items:center">
+        <span class="name">${escapeHTML(t.name)}</span>
+        ${t.done? `<span class="badge" style="border-color:#86efac;color:#166534;background:#ecfdf5">Đã xong</span>`:""}
+      </div>
+      <div class="time" data-deadline="${t.deadline}" data-bell="${t.bell}">--:--:--</div>
+      <div style="display:flex; gap:6px">
+        <button class="btn" data-act="done">${t.done?"↩️ Hoàn tác":"✅ Xong"}</button>
+        <button class="btn danger" data-act="del">🗑️ Xóa</button>
+      </div>
+    `;
+    timerList.appendChild(div);
+  }
+}
+let tickHandle;
+function startTick(){
+  if(tickHandle) cancelAnimationFrame(tickHandle);
+  const tick = ()=>{
+    const now = Date.now();
+    $$("#timerList .time").forEach(el=>{
+      const dl = +el.dataset.deadline;
+      const bell = el.dataset.bell || "none";
+      const diff = Math.max(0, dl - now);
+      el.textContent = formatDiff(diff);
+      if(diff===0 && !el.dataset._fired){
+        el.dataset._fired = "1";
+        if(bell!=="none") playBeep(bell);
+        try{ new Notification("Hết giờ: " + (el.closest(".timer")?.querySelector(".name")?.textContent || "Hẹn giờ"), {silent:false}); }catch{}
+      }
+    });
+    tickHandle = requestAnimationFrame(tick);
+  };
+  tick();
+}
+function formatDiff(ms){
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s%60;
+  return (d? d+"d ":"") + String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+}
+function playBeep(type="beep"){
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type = "sine"; o.frequency.value = type==="beep"? 880 : 1200;
+  g.gain.value = 0.001;
+  o.start();
+  const t0 = ctx.currentTime;
+  g.gain.exponentialRampToValueAtTime(0.2, t0+0.02);
+  o.frequency.exponentialRampToValueAtTime(type==="beep"? 440 : 900, t0+0.35);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+0.45);
+  o.stop(t0+0.5);
+}
+countForm.addEventListener("submit", e=>{
+  e.preventDefault();
+  const name = $("#countName").value.trim();
+  const time = $("#countTime").value;
+  if(!name || !time) return;
+  const bell = $("#countBell").value;
+  const id = "t"+Math.random().toString(36).slice(2,9);
+  const deadline = new Date(time).getTime();
+  state.timers.push({id, name, deadline, bell, done:false});
+  save(); renderTimers();
+  $("#countName").value=""; $("#countTime").value="";
+});
+timerList.addEventListener("click", e=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  const card = e.target.closest(".timer"); if(!card) return;
+  const id = card.dataset.id;
+  const t = state.timers.find(x=>x.id===id);
+  const act = btn.dataset.act;
+  if(act==="del"){
+    if(confirm("Xóa hẹn giờ này?")){ state.timers = state.timers.filter(x=>x.id!==id); renderTimers(); save(); }
+  }
+  if(act==="done"){
+    t.done = !t.done; renderTimers(); save();
+  }
+});
+
+/* ========= Notes ========= */
+const noteArea = $("#noteArea");
+const noteSaveBtn = $("#noteSave");
+const noteClearBtn = $("#noteClear");
+
+noteArea.addEventListener("input", debounce(()=>{
+  state.notes = noteArea.innerHTML; save();
+}, 600));
+noteSaveBtn.addEventListener("click", ()=>{ state.notes = noteArea.innerHTML; save(); alert("Đã lưu!"); });
+noteClearBtn.addEventListener("click", ()=>{
+  if(confirm("Xóa hết nội dung ghi chú?")){ noteArea.innerHTML=""; state.notes=""; save(); }
+});
+noteArea.addEventListener("paste", e=>{
+  const items = e.clipboardData?.items || [];
+  for(const it of items){
+    if(it.type?.startsWith("image/")){
+      const file = it.getAsFile(); const r=new FileReader();
+      r.onload = ()=>{ document.execCommand("insertHTML", false, `<img src="${r.result}" alt="img" style="max-width:100%; border-radius:10px; border:1px solid var(--line)">`); };
+      r.readAsDataURL(file);
+      e.preventDefault();
+    }
+  }
+});
+
+/* ========= Export/Import/Share ========= */
+$("#exportBtn").addEventListener("click", exportJSON);
+$("#importInput").addEventListener("change", e=>{
+  const file = e.target.files?.[0]; if(file) importJSON(file);
+  e.target.value = "";
+});
+$("#shareUrlBtn").addEventListener("click", shareURL);
+
+/* ========= Helpers ========= */
+function escapeHTML(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m])); }
+document.addEventListener("visibilitychange", ()=>{
+  if(Notification && Notification.permission==="default"){ Notification.requestPermission().catch(()=>{}); }
+});
+
+/* ========= Init ========= */
+(function init(){
+  load();
+  if(!localStorage.getItem(storageKey) && !location.hash){
+    const headers = ["Công việc","Phụ trách","Ưu tiên","Bắt đầu","Hạn chót","Trạng thái"];
+    headers.forEach((h,i)=> setCell(0,i, h, {bold:true}));
+    [["Làm banner hero","Phát","Cao","05/09/2025","08/09/2025","Đang làm"],
+     ["Sửa mobile layout","Phát","Trung bình","05/09/2025","10/09/2025","Todo"],
+     ["Chuẩn bị landing TikTok Xu","Phát","Cao","06/09/2025","12/09/2025","Todo"]]
+     .forEach((row, r)=> row.forEach((v,c)=> setCell(r+1,c, v)));
+    state.notes = `<h3>Ghi chú nhanh</h3><ul><li>LED viền tĩnh (không chạy), giao diện sáng.</li><li>Dùng <b>🔗 Tạo Link</b> để chia sẻ cùng dữ liệu.</li></ul>`;
+    state.timers = [{id:"demo1", name:"Giao mockup khách A", deadline: Date.now()+86400*1000*2+3600e3*3, bell:"beep", done:false}];
+  }
+  renderAll();
+})();
+function renderAll(){
+  renderSheet();
+  renderTimers();
+  noteArea.innerHTML = state.notes || noteArea.innerHTML;
+  startTick();
+  applyRowFilter();
+}
+</script>
+</body>
+</html>
