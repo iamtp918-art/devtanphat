@@ -1,0 +1,250 @@
+/* Cài đặt chung và reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    line-height: 1.7;
+    overflow: auto; /* Cho phép cuộn nếu nội dung dài */
+
+    /* Nền gradient chuyển động */
+    background: linear-gradient(-45deg, #0a0a0a, #1a1a2e, #3a0a3a, #1a1a2e);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+/* Keyframe cho nền chuyển động */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.maintenance-container {
+    max-width: 750px;
+    width: 100%;
+    padding: 3rem 2.5rem;
+    margin: 2rem 0; /* Thêm margin trên dưới */
+    border-radius: 20px;
+    
+    /* Hiệu ứng Glassmorphism (Thủy tinh mờ) */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px) saturate(1.5);
+    -webkit-backdrop-filter: blur(15px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+
+    animation: fadeIn 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.icon {
+    width: 60px;
+    height: 60px;
+    color: #c998ff;
+    margin-bottom: 1.5rem;
+    animation: floating 3s infinite ease-in-out;
+}
+
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, #ffffff, #d4adff, #ffffff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: textGradient 5s linear infinite;
+}
+
+@keyframes textGradient {
+    to { background-position: 200% center; }
+}
+
+p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #c0c0c0;
+    margin-bottom: 2rem;
+}
+
+/* --- STYLE ĐỒNG HỒ --- */
+#countdown-title {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #c998ff;
+    margin-bottom: 1rem;
+}
+
+#countdown {
+    display: flex;
+    flex-wrap: wrap; /* Cho phép xuống hàng trên di động */
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.time-box {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 90px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.time-box span {
+    display: block;
+    line-height: 1.2;
+}
+
+.time-box span:first-child {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.time-box .label {
+    font-size: 0.8rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: #c0c0c0;
+}
+
+/* --- STYLE MỚI CHO LIÊN HỆ --- */
+.contact-prompt {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #c0c0c0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap; /* Xuống hàng nếu không đủ chỗ */
+}
+
+.contact-button {
+    text-decoration: none;
+    color: #ffffff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px; /* Bo tròn */
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    
+    /* Hiệu ứng glass cho button */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.contact-button i {
+    margin-right: 0.5rem;
+}
+
+.contact-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Màu sắc riêng */
+.contact-button.zalo:hover {
+    border-color: #0068ff;
+    color: #00c6ff;
+}
+
+.contact-button.telegram:hover {
+    border-color: #2AABEE;
+    color: #2AABEE;
+}
+/* --- KẾT THÚC STYLE LIÊN HỆ --- */
+
+
+.signature {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #888;
+    margin-top: 2.5rem; /* Tăng khoảng cách với nút liên hệ */
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+}
+
+/* Tối ưu cho di động */
+@media (max-width: 600px) {
+    body {
+        overflow: auto; /* Đảm bảo cuộn được */
+    }
+
+    .maintenance-container {
+        padding: 2rem 1rem;
+        margin: 1rem 0; /* Giảm margin trên di động */
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    h1 { font-size: 1.8rem; }
+    p { font-size: 1rem; }
+    .icon { width: 50px; height: 50px; }
+
+    #countdown {
+        gap: 0.5rem;
+    }
+
+    .time-box {
+        padding: 0.8rem;
+        min-width: 70px;
+        flex-basis: 70px; /* Giúp các ô đều nhau */
+    }
+
+    .time-box span:first-child { font-size: 1.8rem; }
+    .time-box .label { font-size: 0.7rem; }
+
+    /* Nút liên hệ trên di động */
+    .contact-links {
+        flex-direction: column; /* Xếp chồng lên nhau */
+        gap: 0.8rem;
+    }
+
+    .contact-button {
+        width: 100%; /* Chiếm toàn bộ chiều rộng */
+    }
+}
