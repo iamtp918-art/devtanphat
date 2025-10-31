@@ -39,7 +39,7 @@ body {
     max-width: 750px;
     width: 100%;
     padding: 3rem 2.5rem;
-    margin: 2rem 0; /* Thêm margin trên dưới */
+    margin: 2rem 0;
     border-radius: 20px;
     
     /* Hiệu ứng Glassmorphism (Thủy tinh mờ) */
@@ -104,7 +104,7 @@ p {
 
 #countdown {
     display: flex;
-    flex-wrap: wrap; /* Cho phép xuống hàng trên di động */
+    flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
     margin-bottom: 2rem;
@@ -160,13 +160,12 @@ p {
     text-decoration: none;
     color: #ffffff;
     padding: 0.8rem 1.5rem;
-    border-radius: 50px; /* Bo tròn */
+    border-radius: 50px;
     font-weight: 600;
     font-size: 0.95rem;
     border: 1px solid transparent;
     transition: all 0.3s ease;
     
-    /* Hiệu ứng glass cho button */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
@@ -184,6 +183,11 @@ p {
 }
 
 /* Màu sắc riêng */
+.contact-button.website:hover { /* THÊM MỚI */
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
 .contact-button.zalo:hover {
     border-color: #0068ff;
     color: #00c6ff;
@@ -200,7 +204,7 @@ p {
     font-size: 0.9rem;
     font-weight: 400;
     color: #888;
-    margin-top: 2.5rem; /* Tăng khoảng cách với nút liên hệ */
+    margin-top: 2.5rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 1.5rem;
 }
@@ -208,12 +212,12 @@ p {
 /* Tối ưu cho di động */
 @media (max-width: 600px) {
     body {
-        overflow: auto; /* Đảm bảo cuộn được */
+        overflow: auto;
     }
 
     .maintenance-container {
         padding: 2rem 1rem;
-        margin: 1rem 0; /* Giảm margin trên di động */
+        margin: 1rem 0;
         border: none;
         box-shadow: none;
         background: transparent;
@@ -232,19 +236,18 @@ p {
     .time-box {
         padding: 0.8rem;
         min-width: 70px;
-        flex-basis: 70px; /* Giúp các ô đều nhau */
+        flex-basis: 70px;
     }
 
     .time-box span:first-child { font-size: 1.8rem; }
     .time-box .label { font-size: 0.7rem; }
 
-    /* Nút liên hệ trên di động */
     .contact-links {
         flex-direction: column; /* Xếp chồng lên nhau */
         gap: 0.8rem;
     }
 
     .contact-button {
-        width: 100%; /* Chiếm toàn bộ chiều rộng */
+        width: 100%;
     }
 }
