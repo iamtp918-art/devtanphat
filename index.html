@@ -15,13 +15,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <div id="particles-js"></div>
+
     <div class="maintenance-container">
         <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-1.007 1.11-.962 1.245.083 2.397.64 3.24 1.485.843.844 1.401 1.995 1.485 3.24.044.55-.52 1.02-.962 1.11a4.5 4.5 0 0 1-1.631.077c-.505.038-.99.22-1.37.495l-.274.195a.623.623 0 0 0-.274.673c.09.28.274.52.505.673l.274.195c.38.275.865.457 1.37.495.505.038 1.01.01 1.631.077.55.044 1.02.52.962 1.11-.084 1.245-.64 2.397-1.485 3.24-.843.844-1.995 1.401-3.24 1.485-.55.044-1.02-.52-1.11-.962a4.5 4.5 0 0 1-.077-1.631c-.038-.505-.22-.99-.495-1.37l-.195-.274a.623.623 0 0 0-.673-.274c-.28.09-.52.274-.673.505l-.195.274c-.275.38-.457.865-.495 1.37-.038.505-.01 1.01-.077 1.631-.044.55.52 1.02.962 1.11 1.245.084 2.397.64 3.24 1.485.843.844 1.401 1.995 1.485 3.24.044.55.52 1.02.962 1.11.542.09 1.007-.56 1.11-.962.083-1.245.64-2.397 1.485-3.24.844-.843 1.995-1.401 3.24-1.485.55-.044 1.02.52 1.11.962.09.542-.56 1.007-1.11.962-1.245-.083-2.397-.64-3.24-1.485-.843-.844-1.401-1.995-1.485-3.24-.044-.55.52-1.02.962-1.11a4.5 4.5 0 0 1 1.631-.077c.505-.038.99-.22 1.37-.495l.274-.195a.623.623 0 0 0 .274-.673c-.09-.28-.274-.52-.505-.673l-.274-.195c-.38-.275-.865-.457-1.L37-.495-.505-.038-1.01-.01-1.631-.077-.55-.044-1.02-.52-.962-1.11.084-1.245.64-2.397 1.485-3.24.843.844 1.995-1.401 3.24-1.485.55-.044 1.02.52 1.11.962.09.542-.56 1.007-1.11.962a4.5 4.5 0 0 1-1.631.077c-.505.038-.99.22-1.37.495l-.274.195a.623.623 0 0 0-.274.673c.09.28.274.52.505.673l.274.195c.38.275.865.457 1.37.495.505.038 1.01.01 1.631.077.55.044 1.02.52.962 1.11-.084 1.245-.64 2.397-1.485 3.24-.843.844-1.995 1.401-3.24 1.485-.55-.044-1.02.52-1.11-.962a4.5 4.5 0 0 1-.077-1.631c-.038-.505-.22-.99-.495-1.37l-.195-.274a.623.623 0 0 0-.673-.274c-.28.09-.52.274-.673.505l-.195.274c-.275.38-.457.865-.495 1.37-.038.505-.01 1.01-.077 1.631Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-1.007 1.11-.962 1.245.083 2.397.64 3.24 1.485.843.844 1.401 1.995 1.485 3.24.044.55-.52 1.02-.962 1.11a4.5 4.5 0 0 1-1.631.077c-.505.038-.99.22-1.37.495l-.274.195a.623.623 0 0 0-.274.673c.09.28.274.52.505.673l.274.195c.38.275.865.457 1.37.495.505.038 1.01.01 1.631.077.55.044 1.02.52.962 1.11-.084 1.245-.64 2.397-1.485 3.24-.843.844-1.995 1.401-3.24 1.485-.55.044-1.02-.52-1.11-.962a4.5 4.5 0 0 1-.077-1.631c-.038-.505-.22-.99-.495-1.37l-.195-.274a.623.623 0 0 0-.673-.274c-.28.09-.52.274-.673.505l-.195.274c-.275.38-.457.865-.495 1.37-.038.505-.01 1.01-.077 1.631-.044.55.52 1.02.962 1.11 1.245.084 2.397.64 3.24 1.485.843.844 1.401 1.995 1.485 3.24.044.55.52 1.02.962 1.11.542.09 1.007-.56 1.11-.962.083-1.245.64-2.397 1.485-3.24.844-.843 1.995-1.401 3.24-1.485.55-.044 1.02.52 1.11.962.09.542-.56 1.007-1.11.962-1.245-.083-2.397-.64-3.24-1.485-.843-.844-1.401-1.995-1.485-3.24-.044-.55.52-1.02.962-1.11a4.5 4.5 0 0 1 1.631-.077c.505-.038.99-.22 1.37-.495l.274-.195a.623.623 0 0 0 .274.673c-.09-.28-.274-.52-.505-.673l-.274-.195c-.38-.275-.865-.457-1.L37-.495-.505-.038-1.01-.01-1.631-.077-.55-.044-1.02-.52-.962-1.11.084-1.245.64-2.397 1.485-3.24.843.844 1.995-1.401 3.24-1.485.55-.044 1.02.52 1.11.962.09.542-.56 1.007-1.11.962a4.5 4.5 0 0 1-1.631.077c-.505.038-.99.22-1.37.495l-.274.195a.623.623 0 0 0-.274.673c.09.28.274.52.505.673l.274.195c.38.275.865.457 1.37.495.505.038 1.01.01 1.631.077.55.044 1.02.52.962 1.11-.084 1.245-.64 2.397-1.485 3.24-.843.844-1.995 1.401-3.24 1.485-.55-.044-1.02.52-1.11-.962a4.5 4.5 0 0 1-.077-1.631c-.038-.505-.22-.99-.495-1.37l-.195-.274a.623.623 0 0 0-.673-.274c-.28.09-.52.274-.673.505l-.195.274c-.275.38-.457.865-.495 1.37-.038.505-.01 1.01-.077 1.631Z" />
         </svg>
 
         <h1>WEBSITE ĐANG BẢO TRÌ</h1>
@@ -30,22 +33,10 @@
 
         <div id="countdown-title">Sẽ sớm trở lại sau:</div>
         <div id="countdown">
-            <div class="time-box">
-                <span id="days">0</span>
-                <span class="label">Ngày</span>
-            </div>
-            <div class="time-box">
-                <span id="hours">0</span>
-                <span class="label">Giờ</span>
-            </div>
-            <div class="time-box">
-                <span id="minutes">0</span>
-                <span class="label">Phút</span>
-            </div>
-            <div class="time-box">
-                <span id="seconds">0</span>
-                <span class="label">Giây</span>
-            </div>
+            <div class="time-box"><span id="days">0</span><span class="label">Ngày</span></div>
+            <div class="time-box"><span id="hours">0</span><span class="label">Giờ</span></div>
+            <div class="time-box"><span id="minutes">0</span><span class="label">Phút</span></div>
+            <div class="time-box"><span id="seconds">0</span><span class="label">Giây</span></div>
         </div>
         
         <div class="contact-prompt">Hoặc liên hệ qua:</div>
@@ -60,11 +51,37 @@
                 <i class="fa-brands fa-telegram"></i> Telegram (@useriamtp)
             </a>
         </div>
+
         <div class="signature">
-            &copy; 2025 | Developer Trần Tấn Phát
+            &copy; 2025 | Developr Trần Tấn Phát
+        </div>
+    </div>
+    
+    <div id="modal-overlay">
+        <div id="maintenance-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <h2>Thông báo quan trọng</h2>
+                </div>
+                <button id="close-modal" class="close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Website hiện tại đang trong quá trình bảo trì và nâng cấp. Vui lòng chuyển sang website mới của chúng tôi để tiếp tục sử dụng dịch vụ.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="understand-button" class="modal-button btn-secondary">
+                    <i class="fa-solid fa-xmark"></i> Đã hiểu
+                </button>
+                <a href="https://devtanphat.site/" target="_blank" class="modal-button btn-primary">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i> Chuyển sang web mới
+                </a>
+            </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="app.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
