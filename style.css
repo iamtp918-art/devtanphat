@@ -1,15 +1,6 @@
-/* Cài đặt chung và reset */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-html, body {
-    height: 100%;
-}
+/* Cài đặt chung và reset (Giữ nguyên) */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -20,35 +11,30 @@ body {
     text-align: center;
     padding: 1rem;
     line-height: 1.7;
-    overflow: auto; /* Cho phép cuộn nếu nội dung dài */
-
-    /* Nền gradient chuyển động */
+    overflow: auto;
     background: linear-gradient(-45deg, #0a0a0a, #1a1a2e, #3a0a3a, #1a1a2e);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
 }
 
-/* Keyframe cho nền chuyển động */
 @keyframes gradientBG {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
+/* Container chính (Giữ nguyên) */
 .maintenance-container {
     max-width: 750px;
     width: 100%;
     padding: 3rem 2.5rem;
     margin: 2rem 0;
     border-radius: 20px;
-    
-    /* Hiệu ứng Glassmorphism (Thủy tinh mờ) */
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(15px) saturate(1.5);
     -webkit-backdrop-filter: blur(15px) saturate(1.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-
     animation: fadeIn 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -57,6 +43,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Icon (Giữ nguyên) */
 .icon {
     width: 60px;
     height: 60px;
@@ -71,6 +58,7 @@ body {
     100% { transform: translateY(0px); }
 }
 
+/* Tiêu đề (Giữ nguyên) */
 h1 {
     font-size: 2.2rem;
     font-weight: 700;
@@ -94,14 +82,13 @@ p {
     margin-bottom: 2rem;
 }
 
-/* --- STYLE ĐỒNG HỒ --- */
+/* Đồng hồ đếm ngược (Giữ nguyên) */
 #countdown-title {
     font-size: 1rem;
     font-weight: 300;
     color: #c998ff;
     margin-bottom: 1rem;
 }
-
 #countdown {
     display: flex;
     flex-wrap: wrap;
@@ -109,7 +96,6 @@ p {
     gap: 1rem;
     margin-bottom: 2rem;
 }
-
 .time-box {
     background: rgba(0, 0, 0, 0.2);
     padding: 1rem 1.5rem;
@@ -121,26 +107,11 @@ p {
     min-width: 90px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
+.time-box span { display: block; line-height: 1.2; }
+.time-box span:first-child { font-size: 2.5rem; font-weight: 700; color: #ffffff; }
+.time-box .label { font-size: 0.8rem; font-weight: 300; text-transform: uppercase; color: #c0c0c0; }
 
-.time-box span {
-    display: block;
-    line-height: 1.2;
-}
-
-.time-box span:first-child {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #ffffff;
-}
-
-.time-box .label {
-    font-size: 0.8rem;
-    font-weight: 300;
-    text-transform: uppercase;
-    color: #c0c0c0;
-}
-
-/* --- STYLE MỚI CHO LIÊN HỆ --- */
+/* Nút liên hệ (Giữ nguyên) */
 .contact-prompt {
     font-size: 1rem;
     font-weight: 300;
@@ -148,14 +119,12 @@ p {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
-
 .contact-links {
     display: flex;
     justify-content: center;
     gap: 1rem;
-    flex-wrap: wrap; /* Xuống hàng nếu không đủ chỗ */
+    flex-wrap: wrap;
 }
-
 .contact-button {
     text-decoration: none;
     color: #ffffff;
@@ -165,40 +134,217 @@ p {
     font-size: 0.95rem;
     border: 1px solid transparent;
     transition: all 0.3s ease;
-    
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
-
-.contact-button i {
-    margin-right: 0.5rem;
-}
-
+.contact-button i { margin-right: 0.5rem; }
 .contact-button:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-3px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
+.contact-button.website:hover { border-color: #ffc107; color: #ffc107; }
+.contact-button.zalo:hover { border-color: #0068ff; color: #00c6ff; }
+.contact-button.telegram:hover { border-color: #2AABEE; color: #2AABEE; }
 
-/* Màu sắc riêng */
-.contact-button.website:hover { /* THÊM MỚI */
-    border-color: #ffc107;
-    color: #ffc107;
+/* Chữ ký (Giữ nguyên) */
+.signature {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #888;
+    margin-top: 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
 }
 
-.contact-button.zalo:hover {
-    border-color: #0068ff;
-    color: #00c6ff;
+/* Responsive (Giữ nguyên, sẽ thêm responsive cho modal ở dưới) */
+@media (max-width: 600px) {
+    body { overflow: auto; }
+    .maintenance-container {
+        padding: 2rem 1rem;
+        margin: 1rem 0;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+    h1 { font-size: 1.8rem; }
+    p { font-size: 1rem; }
+    .icon { width: 50px; height: 50px; }
+    #countdown { gap: 0.5rem; }
+    .time-box { padding: 0.8rem; min-width: 70px; flex-basis: 70px; }
+    .time-box span:first-child { font-size: 1.8rem; }
+    .time-box .label { font-size: 0.7rem; }
+    .contact-links { flex-direction: column; gap: 0.8rem; }
+    .contact-button { width: 100%; }
 }
 
-.contact-button.telegram:hover {
-    border-color: #2AABEE;
-    color: #2AABEE;
+/* Cài đặt chung và reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-/* --- KẾT THÚC STYLE LIÊN HỆ --- */
 
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #e0e0e0;
+    /* NỀN ĐEN CHUYÊN NGHIỆP */
+    background-color: #0d1117; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+    line-height: 1.7;
+    overflow: auto;
+}
+
+/* --- HIỆU ỨNG NỀN HẠT (PARTICLES) --- */
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Nằm dưới nội dung */
+}
+
+/* Nội dung chính */
+.maintenance-container {
+    max-width: 750px;
+    width: 100%;
+    padding: 3rem 2.5rem;
+    margin: 2rem 0;
+    border-radius: 20px;
+    
+    /* Phong cách Glassmorphism */
+    background: rgba(27, 31, 41, 0.75); /* Nền tối + mờ */
+    backdrop-filter: blur(10px) saturate(1.5);
+    -webkit-backdrop-filter: blur(10px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+
+    animation: fadeIn 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    
+    /* NÂNG CẤP: Phải có z-index để nổi lên trên nền particles */
+    position: relative;
+    z-index: 1;
+}
+
+/* Các style còn lại (Icon, H1, Countdown...)
+   Giữ nguyên như các phiên bản trước
+*/
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.icon {
+    width: 60px;
+    height: 60px;
+    color: #c998ff;
+    margin-bottom: 1.5rem;
+    animation: floating 3s infinite ease-in-out;
+}
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, #ffffff, #d4adff, #ffffff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: textGradient 5s linear infinite;
+}
+@keyframes textGradient {
+    to { background-position: 200% center; }
+}
+p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #c0c0c0;
+    margin-bottom: 2rem;
+}
+#countdown-title {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #c998ff;
+    margin-bottom: 1rem;
+}
+#countdown {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.time-box {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 90px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.time-box span { display: block; line-height: 1.2; }
+.time-box span:first-child { font-size: 2.5rem; font-weight: 700; color: #ffffff; }
+.time-box .label { font-size: 0.8rem; font-weight: 300; text-transform: uppercase; color: #c0c0c0; }
+
+/* Nút liên hệ */
+.contact-prompt {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #c0c0c0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+.contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.contact-button {
+    text-decoration: none;
+    color: #ffffff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.contact-button i { margin-right: 0.5rem; }
+.contact-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+.contact-button.website:hover { border-color: #ffc107; color: #ffc107; }
+.contact-button.zalo:hover { border-color: #0068ff; color: #00c6ff; }
+.contact-button.telegram:hover { border-color: #2AABEE; color: #2AABEE; }
 
 .signature {
     font-size: 0.9rem;
@@ -209,12 +355,110 @@ p {
     padding-top: 1.5rem;
 }
 
-/* Tối ưu cho di động */
-@media (max-width: 600px) {
-    body {
-        overflow: auto;
-    }
+/* --- MODAL STYLE (Giữ nguyên phong cách chuyên nghiệp) --- */
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+#modal-overlay.show { opacity: 1; visibility: visible; }
+#maintenance-modal {
+    width: 100%;
+    max-width: 460px;
+    text-align: left;
+    color: #e0e0e0;
+    background: #1e202a;
+    border-radius: 12px;
+    border: 1px solid #3a3d4d;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+#modal-overlay.show #maintenance-modal { transform: scale(1); }
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #3a3d4d;
+}
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+.modal-title i { color: #007bff; }
+.close-button {
+    background: #3a3d4d;
+    border: none;
+    color: #aeb4c4;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 28px;
+    transition: background 0.3s;
+}
+.close-button:hover { background: #4a4d5d; }
+.modal-body {
+    padding: 1.5rem 1.25rem;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+.modal-body p {
+    font-size: 0.95rem;
+    color: #aeb4c4;
+    margin: 0;
+}
+.modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1.25rem;
+}
+.modal-button {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+.modal-button i { margin-right: 0.5rem; font-size: 0.85rem; }
+.modal-button.btn-secondary {
+    background-color: #3a3d4d;
+    color: #aeb4c4;
+}
+.modal-button.btn-secondary:hover { background-color: #4a4d5d; }
+.modal-button.btn-primary {
+    background-color: #006aff;
+    color: #ffffff;
+}
+.modal-button.btn-primary:hover { background-color: #005ce6; }
 
+/* Responsive (Giữ nguyên) */
+@media (max-width: 600px) {
     .maintenance-container {
         padding: 2rem 1rem;
         margin: 1rem 0;
@@ -224,30 +468,16 @@ p {
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
     }
-
     h1 { font-size: 1.8rem; }
     p { font-size: 1rem; }
     .icon { width: 50px; height: 50px; }
-
-    #countdown {
-        gap: 0.5rem;
-    }
-
-    .time-box {
-        padding: 0.8rem;
-        min-width: 70px;
-        flex-basis: 70px;
-    }
-
+    #countdown { gap: 0.5rem; }
+    .time-box { padding: 0.8rem; min-width: 70px; flex-basis: 70px; }
     .time-box span:first-child { font-size: 1.8rem; }
     .time-box .label { font-size: 0.7rem; }
-
-    .contact-links {
-        flex-direction: column; /* Xếp chồng lên nhau */
-        gap: 0.8rem;
-    }
-
-    .contact-button {
-        width: 100%;
-    }
+    .contact-links { flex-direction: column; gap: 0.8rem; }
+    .contact-button { width: 100%; }
+}
+@media (max-width: 500px) {
+    .modal-footer { flex-direction: column; }
 }
