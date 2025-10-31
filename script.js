@@ -1,9 +1,4 @@
 // --- BẮT ĐẦU CODE ĐỒNG HỒ ĐẾM NGƯỢC ---
-
-// 1. CHỈNH SỬA NGÀY KẾT THÚC TẠI ĐÂY
-// Định dạng: "Tháng Ngày, Năm Giờ:Phút:Giây" (Ví dụ: "Oct 30, 2026 21:00:00")
-// 
-// Dưới đây là ngày 30/10/2026 (cách 1 năm kể từ 30/10/2025)
 const countDownDate = new Date("Oct 30, 2026 21:00:00").getTime();
 
 // 2. Lấy các phần tử HTML
